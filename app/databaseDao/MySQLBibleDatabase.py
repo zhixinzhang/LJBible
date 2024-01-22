@@ -3,10 +3,13 @@ import logging
 
 class MySQLBibleDatabase:
     book_table = 'ljbible.books'
+    chapter_table = 'ljbible.chapters'
+    verse_table = 'ljbible.verses'
+    comment_table = 'ljbible.comments'
     beads_table = 'ljbible.beads'
 
-    logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', 
-                    level=logging.INFO) 
+    logging.basicConfig(filename='crawler.log', filemode='w', format='%(asctime)s: %(levelname)s: %(message)s', level=logging.INFO) 
+
 
     def __init__(self, host, user, password, database):
         self.host = host
@@ -95,22 +98,49 @@ class MySQLBibleDatabase:
             """
             cursor.execute(sql_script)
             connection.commit()
+            book_id = cursor.lastrowid
             logging.info(f"insert books executed successfully book name :  {full_book_name}")
+            return book_id
 
         except Exception as e:
+            logging.error(f"insert book failed sql :  {sql_script}")
             print(f"Error executing SQL script: {e}")
 
-    def insert_verses(self, connection, full_book_name, abbrevation, url):
+    def insert_verses(self, connection, verse_num, original_content, content_with_mark, 
+                      version, author, ezoe_link, chapater_number, chapter_id):
         try:
             cursor = connection.cursor()
             sql_script = f"""
-                INSERT INTO {self.book_table} 
-                (book_name, book_name_abbreviation, ezoe_link) 
-                VALUES ('{full_book_name}', '{abbrevation}', '{url}');
+                INSERT INTO {self.verse_table} 
+                (verse_num, original_content, content_with_mark, version, author, ezoe_link, chapater_number, chapater_id) 
+                VALUES 
+                ({verse_num}, '{original_content}', '{content_with_mark}', '{version}', '{author}', 
+                '{ezoe_link}', '{chapater_number}', {chapter_id});
             """
             cursor.execute(sql_script)
             connection.commit()
-            logging.info(f"insert books executed successfully book name :  {full_book_name}")
+            verse_id = cursor.lastrowid
+            print(f"insert verse executed successfully verse id is  :  {verse_id}, {original_content}")
+            logging.info(f"insert verse executed successfully verse id is  :  {verse_id}, {original_content}")
+            return verse_id
+        
+        except Exception as e:
+            print(f"Error executing SQL script: {e}") 
+
+    def insert_chapater(self, connection, chapter_num, body, ezoe_link, book_id):
+        try:
+            cursor = connection.cursor()
+            sql_script = f"""
+                INSERT INTO {self.chapter_table} 
+                (chapter_num, body, ezoe_link, book_id) 
+                VALUES 
+                ({chapter_num}, '{body}', '{ezoe_link}', {book_id});
+            """
+            cursor.execute(sql_script)
+            connection.commit()
+            chapter_id = cursor.lastrowid
+            logging.info(f"insert chapter executed successfully chapter number is :  {chapter_num}, chapter id is : {chapter_id}")
+            return chapter_id
 
         except Exception as e:
             print(f"Error executing SQL script: {e}")            

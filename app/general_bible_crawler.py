@@ -11,8 +11,8 @@ ezoe_url = 'https://ezoe.work/bible/jw/'
 books_url_to_crawl = 'https://ezoe.work/bible8/index.html'
 chapters_url_to_crawl = 'https://ezoe.work/bible8/'
 
-logging.basicConfig(format='%(asctime)s: %(levelname)s: %(message)s', level=logging.INFO) 
-  
+logging.basicConfig(filename='crawler.log', filemode='a', format='%(asctime)s: %(levelname)s: %(message)s', level=logging.INFO) 
+
 bDB = DB.MySQLBibleDatabase(host="localhost", user="luke", password="123456", database="ljbible")
 bDB.connect()
 bDB.drop_all_tables(bDB.connection)
@@ -28,11 +28,12 @@ def books_abbrevation_crawl(connection, current_url):
         soup = ezoe_url_request(current_url)
         books_name_abrevations = soup.find_all('a', attrs={'class':'page-navi'})
         for line in books_name_abrevations:
-            time.sleep(random.randint(1, 4))
+            time.sleep(random.randint(2, 4))
             abbrevation = line.text
             url = line.attrs['href']
             next_url = chapters_url_to_crawl + url
             logging.info(f"crawling bible books %s", abbrevation)
+            print(f"crawling bible books %s", abbrevation)
             chapters_crawler(connection, next_url, abbrevation)
 
     except Exception as e:
@@ -40,12 +41,18 @@ def books_abbrevation_crawl(connection, current_url):
 
 def chapters_crawler(connection, current_url, abbrevation):
     try:
-        soup = ezoe_url_request(current_url)
-        
-        full_book_name = soup.find_all('h3')[0].text
-        bDB.insert_book(connection, full_book_name, abbrevation, current_url)
+        logging.info(f"crawling bible chapter %s", abbrevation)
+        print(f"crawling bible chapter %s", abbrevation)
 
+        # current_url = 'https://ezoe.work/bible8/index10.html'
+        soup = ezoe_url_request(current_url)
+        full_book_name = soup.find_all('h3')[0].text
+        book_id = bDB.insert_book(connection, full_book_name, abbrevation, current_url)
         chapters = soup.find_all('a', attrs={'class':'page-navi'})
+
+        logging.info("crawling chapters number is : %s ", len(chapters))
+        print("crawling chapters number is : %s ", len(chapters))
+
         for line in chapters:
             chapter = line.text
             logging.info( 'crawling ' + full_book_name +  chapter)
@@ -55,30 +62,45 @@ def chapters_crawler(connection, current_url, abbrevation):
 
             url = line.attrs['href']
             full_chapter_url = chapters_url_to_crawl + url
-            chapter_number = int(chapter) 
-            verses_crawler(connection, full_chapter_url, chapter_number, full_book_name)
+            chapter_number = int(chapter)
+            chapter_id = bDB.insert_chapater(connection, chapter_number, '', current_url, book_id)
+
+            sleep_time = random.randint(4, 7)
+            logging.info("currenty chapter is : %s ,  sleep time is %s", full_chapter_url, sleep_time)
+            print("currenty chapter is : %s ,  sleep time is %s", full_chapter_url, sleep_time)
+            verses_crawler(connection, full_chapter_url, chapter_number, full_book_name, chapter_id)
                                 
     except Exception as e:
         logging.error(f"Error crawling {current_url}: {e}")
 
-def verses_crawler(connection, current_url, chapter_number, full_book_name):
+def verses_crawler(connection, current_url, chapter_number, full_book_name, chapter_id):
     try:
-        logging.info( "Crawling %s  %s  %s", full_book_name, chapter_number, current_url)
+        logging.info( "Crawling verses :  %s ,  %s  ,  %s", full_book_name, chapter_number, current_url)
 
         soup = ezoe_url_request(current_url)
-        # chapter_number = soup.find_all('h2', attrs={'class' : 'timelineMajorMarker'})[0]
         full_verses_entire = soup.find_all('dl', attrs={'class' : 'timelineMinor'})[0]
         full_verse = full_verses_entire.find_all('dt')
 
         total_verses_num = len(full_verse)
+        logging.info("Total verses number is : %s", total_verses_num)
+
         for i in range(total_verses_num):
             contents = full_verse[i].contents
-            verse_num = contents[0].text
-            verse = contents[1].text
-            connection.insert_verses()
-            logging.info( 'crawling ' + full_book_name +  chapter)
+            verse_num = contents[0].text        ## TODO 2上
+            content_with_mark = contents[1].text
+            ver_contents = contents[1].contents
+            original_version_content = ''
+            for v in ver_contents:
+                v = str(v)
+                if 'sup' not in v :
+                    original_version_content += v
+            
+            if original_version_content == '':
+                logging.warning( "Crawling %s  %s verse is empty %s", full_book_name, chapter_number, current_url)
 
-        
+            bDB.insert_verses(connection, verse_num, original_version_content, content_with_mark, 
+                      'chinese', '', current_url, chapter_number, chapter_id)
+
     except Exception as e:
         logging.error(f"Error crawling {current_url}: {e}")        
     
