@@ -99,7 +99,8 @@ class MySQLBibleDatabase:
             cursor.execute(sql_script)
             connection.commit()
             book_id = cursor.lastrowid
-            logging.info(f"insert books executed successfully book name :  {full_book_name}")
+            print(f"insert books executed successfully book name :  {full_book_name}, book_id : {book_id}")
+            logging.info(f"insert books executed successfully book name :  {full_book_name}, book_id : {book_id}")
             return book_id
 
         except Exception as e:
@@ -139,6 +140,7 @@ class MySQLBibleDatabase:
             cursor.execute(sql_script)
             connection.commit()
             chapter_id = cursor.lastrowid
+            print(f"insert chapter executed successfully chapter number is :  {chapter_num}, chapter id is : {chapter_id}")
             logging.info(f"insert chapter executed successfully chapter number is :  {chapter_num}, chapter id is : {chapter_id}")
             return chapter_id
 

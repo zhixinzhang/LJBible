@@ -1,10 +1,1 @@
-2024-01-22 00:01:34,200: INFO: crawling bible books 创
-2024-01-22 00:01:34,201: INFO: crawling bible chapter 创
-2024-01-22 00:01:34,286: INFO: insert books executed successfully book name :  创世记
-2024-01-22 00:01:34,288: INFO: crawling chapters number is : 50 
-2024-01-22 00:01:34,289: INFO: crawling 创世记001
-2024-01-22 00:01:34,290: INFO: insert chapter executed successfully chapter number is :  1, chapter id is : 1
-2024-01-22 00:01:34,291: INFO: currenty chapter is : https://ezoe.work/bible8/0001.html ,  sleep time is 5
-2024-01-22 00:01:34,291: INFO: Crawling verses :  创世记 ,  1  ,  https://ezoe.work/bible8/0001.html
-2024-01-22 00:01:34,427: INFO: Total verses number is : 32
-2024-01-22 00:01:55,053: INFO: insert verse executed successfully verse id is  :  1, 起初神创造诸天与地，
+2024-01-23 23:21:22,987: INFO: crawling bible books 创
