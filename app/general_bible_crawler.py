@@ -38,10 +38,11 @@ def books_abbrevation_crawl(connection, current_url):
             if abbrevation == '约贰' or abbrevation == '约叁' or abbrevation == '犹':
                 single_chapter_crawler(connection, next_url, abbrevation)
             else :
+                print('test')
                 chapters_crawler(connection, next_url, abbrevation)
 
     except Exception as e:
-        logging.error(f"Error crawling {current_url}: {e}")
+        logging.error(f"Error crawling books_abbrevation_crawl {current_url}: {e}")
 
 def chapters_crawler(connection, current_url, abbrevation):
     try:
@@ -76,7 +77,7 @@ def chapters_crawler(connection, current_url, abbrevation):
             verses_crawler(connection, full_chapter_url, chapter_number, full_book_name, chapter_id)
                                 
     except Exception as e:
-        logging.error(f"Error crawling {current_url}: {e}")
+        logging.error(f"Error crawling chapters_crawler {current_url}: {e}")
 
 def single_chapter_crawler(connection, current_url, abbrevation):
     try:
@@ -94,7 +95,7 @@ def single_chapter_crawler(connection, current_url, abbrevation):
         verses_crawler(connection, current_url, 1, full_book_name, chapter_id)
                                 
     except Exception as e:
-        logging.error(f"Error crawling {current_url}: {e}")
+        logging.error(f"Error crawling single_chapter_crawler {current_url}: {e}")
 
 def verses_crawler(connection, current_url, chapter_number, full_book_name, chapter_id):
     try:
@@ -133,7 +134,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
                       'chinese', '', current_url, chapter_number, chapter_id)
 
     except Exception as e:
-        logging.error(f"Error crawling {current_url}: {e}")        
+        logging.error(f"Error crawling verses_crawler {current_url}: {e}")        
     
 def ezoe_url_request(current_url):
     if current_url in visited_urls:

@@ -4,7 +4,7 @@ CREATE TABLE `books` (
   `book_name_abbreviation` varchar(5) UNIQUE NOT NULL,
   `new_or_old` varchar(5),
   `version` varchar(10),
-  `create_time` varchar(255),
+  `create_time` varchar(100),
   `author` varchar(10),
   `descriptions` varchar(100),
   `ezoe_link` varchar(100),
@@ -22,7 +22,7 @@ CREATE TABLE `chapters` (
 
 CREATE TABLE `titles` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `title` varchar(255),
+  `title` varchar(100),
   `level` integer,
   `version` varchar(10),
   `ezoe_link` varchar(100),
@@ -33,9 +33,11 @@ CREATE TABLE `titles` (
 CREATE TABLE `verses` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `verse_num` integer,
+  `verse_level` varchar(10),
+  `verse_gold` bool,
+  `verse_liked` bool,
   `original_content` varchar(300),
   `content_with_mark` varchar(300),
-  `content_structure` varchar(255),
   `version` varchar(50),
   `author` varchar(50),
   `ezoe_link` varchar(100),
@@ -46,8 +48,9 @@ CREATE TABLE `verses` (
 
 CREATE TABLE `comments` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `prefix_content` varchar(255),
-  `content` varchar(255) NOT NULL,
+  `comment_num` integer,
+  `mark` integer,
+  `content` varchar(10000) NOT NULL,
   `verse_id` integer,
   `ezoe_link` varchar(100),
   `created_at` timestamp
@@ -55,8 +58,9 @@ CREATE TABLE `comments` (
 
 CREATE TABLE `beads` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `prefix_content` varchar(255),
-  `content` varchar(255),
+  `bead_num` varchar(10),
+  `mark` varchar(10),
+  `content` varchar(10000) NOT NULL,
   `verse_id` integer,
   `ezoe_link` varchar(100),
   `created_at` timestamp
