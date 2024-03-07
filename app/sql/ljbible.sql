@@ -26,7 +26,7 @@ CREATE TABLE `titles` (
   `level` integer,
   `version` varchar(10),
   `ezoe_link` varchar(100),
-  `chapater_id` integer NOT NULL,
+  `chapter_id` integer NOT NULL,
   `created_at` timestamp
 );
 
@@ -36,13 +36,18 @@ CREATE TABLE `verses` (
   `verse_level` varchar(10),
   `verse_gold` bool,
   `verse_liked` bool,
+  `chapter_number` integer NOT NULL,
+  `chapter_id` integer NOT NULL,
+  `created_at` timestamp
+);
+
+CREATE TABLE `verse_contents` (
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
   `original_content` varchar(300),
   `content_with_mark` varchar(300),
   `version` varchar(50),
-  `author` varchar(50),
   `ezoe_link` varchar(100),
-  `chapater_number` integer NOT NULL,
-  `chapater_id` integer NOT NULL,
+  `verse_id` integer NOT NULL,
   `created_at` timestamp
 );
 
@@ -68,10 +73,12 @@ CREATE TABLE `beads` (
 
 ALTER TABLE `chapters` ADD FOREIGN KEY (`book_id`) REFERENCES `books` (`id`);
 
-ALTER TABLE `titles` ADD FOREIGN KEY (`chapater_id`) REFERENCES `chapters` (`id`);
+ALTER TABLE `titles` ADD FOREIGN KEY (`chapter_id`) REFERENCES `chapters` (`id`);
 
-ALTER TABLE `verses` ADD FOREIGN KEY (`chapater_id`) REFERENCES `chapters` (`id`);
+ALTER TABLE `verses` ADD FOREIGN KEY (`chapter_id`) REFERENCES `chapters` (`id`);
 
 ALTER TABLE `comments` ADD FOREIGN KEY (`verse_id`) REFERENCES `verses` (`id`);
+
+ALTER TABLE `verse_contents` ADD FOREIGN KEY (`id`) REFERENCES `verses` (`id`);
 
 ALTER TABLE `beads` ADD FOREIGN KEY (`verse_id`) REFERENCES `verses` (`id`);
