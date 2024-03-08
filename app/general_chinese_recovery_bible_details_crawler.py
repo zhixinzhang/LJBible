@@ -3,7 +3,7 @@ import random
 import time
 import logging
 import re
-import models.bible_constans as constans
+import models.bible_constans as Constants
 
 import bs4
 from bs4 import BeautifulSoup
@@ -83,7 +83,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
         logging.info(f"Crawling verses :  %s ,  %s  ,  %s", full_book_name, chapter_number, current_url)
         print('Current book : {}, chapter : {} , link : {}'.format(full_book_name, chapter_number, current_url))
 
-        # current_url = 'https://ezoe.work/bible/jw/hf_6_14.html'
+        # current_url = 'https://ezoe.work/bible/jw/hf_5_14.html'
 
         soup = ezoe_url_request(current_url)
         full_jy_original_verse = soup.find_all("a", href=re.compile("/jy/jx_"))
@@ -99,7 +99,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
             original_verse = full_original_verse[i].nextSibling.replace('\u3000', '')
             
             single_verse_soup = full_original_verse[i].parent
-            if len(single_verse_soup.attrs) != 0 and 'id' in single_verse_soup.attrs and single_verse_soup.attrs['id'] == 'ddt':
+            if len(single_verse_soup.attrs) != 0 and 'id' in single_verse_soup.attrs and 'ddt' in single_verse_soup.attrs['id'] :
                 logging.info(" Inserting Book {} : chapter : {}  verse without comments and beads {} : {}".format(full_book_name, chapter_number, verse_num, original_verse))
                 verse_level = ''
                 if not verse_num.isdigit():
@@ -110,11 +110,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
                     logging.warn(" Fina a verver_level {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_number, verse_num, verse_level))
                 
                 verse_id = bDB.insert_verse(connection, verse_num, verse_level, False, False,chapter_number, chapter_id)
-                
-                # print(constans.chinese_recovery)
-                verse_content_id = bDB.insert_verse_content(connection, original_verse, original_verse, 
-                      constans.chinese_recovery, current_url, verse_id, verse_num)
-                
+                verse_content_id = bDB.insert_verse_content(connection, original_verse, original_verse, Constants.chinese_recovery, current_url, verse_id)
                 continue
 
             verse_with_beads_comments = single_verse_soup.parent
@@ -133,16 +129,11 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
                         verse_level = all_verse_struc[2]
                         print("Find a verse_level {} : {}".format(verse_num, verse_level))
                         logging.warn(" Fina a verver_level {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_number, verse_num, verse_level))
-
-                    # verse_id = bDB.insert_verse(connection, verse_num, verse_level, False, False, original_verse, v_with_mark, 
-                    #   'chinese', '', current_url, chapter_number, chapter_id)
                     
 
                     verse_id = bDB.insert_verse(connection, verse_num, verse_level, False, False, chapter_number, chapter_id)
-                
-                    # print(constans.chinese_recovery)
-                    verse_content_id = bDB.insert_verse_content(connection, original_verse, v_with_mark, 
-                        constans.chinese_recovery, current_url, verse_id, verse_num)
+                    verse_content_id = bDB.insert_verse_content(connection, original_verse, v_with_mark, Constants.chinese_recovery, current_url, verse_id)
+
                     for k, v in comments.items():
                         if "词典" in k:
                             comment_num = 1         ##TODO https://ezoe.work/bible/jw/hf_11_9.html

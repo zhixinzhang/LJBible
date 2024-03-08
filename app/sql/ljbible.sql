@@ -43,8 +43,8 @@ CREATE TABLE `verses` (
 
 CREATE TABLE `verse_contents` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `original_content` varchar(300),
-  `content_with_mark` varchar(300),
+  `original_content` varchar(1000),
+  `content_with_mark` varchar(1000),
   `version` varchar(50),
   `ezoe_link` varchar(100),
   `verse_id` integer NOT NULL,
