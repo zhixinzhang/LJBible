@@ -78,7 +78,7 @@ def verses_crawler(connection, current_url, book, chapter_num):
         print("Crawling verses Current book : {}, chapter : {} , link : {}".format(full_book_name,  chapter_num,current_url))
 
         # current_url = "https://ezoe.work/Bible00/Show/Pas004.html"
-        # current_url = "https://ezoe.work/Bible00/Show/Pas001.html"
+        current_url = "https://ezoe.work/Bible00/Show/H1Kings008.html"
         soup = ezoe_url_request(current_url)
         all_verses = soup.find_all('li', attrs={'style':'white-space: normal'})
 
@@ -86,10 +86,13 @@ def verses_crawler(connection, current_url, book, chapter_num):
         logging.info('Current book : {}, chapter : {} , total verses number : {},  link : {}'.format(full_book_name, chapter_num, total_verses_num, current_url))
         print('Current book : {}, chapter : {} , total verses number : {},  link : {}'.format(full_book_name, chapter_num, total_verses_num, current_url))
 
-        for content in all_verses:
-            verse = content.text.strip()
+        for i in range(total_verses_num):
+            i = 51
+            verse = all_verses[i].text.strip()
             if full_book_name == "诗篇" and ":0" in verse:
                 continue
+            if "因为他们是你的子民，你的产业，是你从埃及" in verse:
+                verse = "8:51\u3000For they are Your people and Your inheritance, whom You brought out from Egypt, from the midst of an iron furnace;"
             if "\u3000" in verse :
                 verse_chapter_num = verse.split('\u3000')[0]
                 verse_num = verse_chapter_num.split(":")[1]
@@ -99,6 +102,7 @@ def verses_crawler(connection, current_url, book, chapter_num):
                 verse_chapter_num = verse.split(' ')[0]
                 verse_num = verse_chapter_num.split(":")[1]
                 english_verse_content = verse.replace(verse_chapter_num, '').replace('(', '').replace('\n', '')
+
 
             logging.info('Current book : {},   {} : {}, verses : {},  link : {}'.
                          format(full_book_name, chapter_num, verse_num, english_verse_content, current_url))

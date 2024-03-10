@@ -83,7 +83,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
         logging.info(f"Crawling verses :  %s ,  %s  ,  %s", full_book_name, chapter_number, current_url)
         print('Current book : {}, chapter : {} , link : {}'.format(full_book_name, chapter_number, current_url))
 
-        # current_url = 'https://ezoe.work/bible/jw/hf_5_14.html'
+        current_url = 'https://ezoe.work/bible/jw/hf_39_4.html'
 
         soup = ezoe_url_request(current_url)
         full_jy_original_verse = soup.find_all("a", href=re.compile("/jy/jx_"))
@@ -115,10 +115,11 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
 
             verse_with_beads_comments = single_verse_soup.parent
             sub_beads_comments = verse_with_beads_comments.contents
+            dd_exist = False
             for sub in sub_beads_comments:
                 name = sub.name
                 if name == 'dd':
-
+                    dd_exist = True
                     comments, beads, v_with_mark = build_beads_comments(sub.contents)
                     print(" Inserting Book {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_number, verse_num, original_verse))
                     logging.info(" Inserting Book {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_number, verse_num, original_verse))
@@ -149,6 +150,14 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
                         original_beads = v.replace('\u3000', ' ')
                         bead_id = bDB.insert_bead(connection, bead_num, mark, original_beads, current_url, verse_id)
                         print('bead - {} : {}'.format(k, v))
+                    v_with_mark = ''
+                    beads = None
+                    comments = None
+            
+            if not dd_exist :
+                verse_id = bDB.insert_verse(connection, verse_num, verse_level, False, False, chapter_number, chapter_id)
+                verse_content_id = bDB.insert_verse_content(connection, original_verse, v_with_mark, Constants.chinese_recovery, current_url, verse_id)
+
 
     except Exception as e:
         logging.error("Error crawling {} : {} verses_crawler  {} : {}".format(full_book_name, chapter_number, current_url, e))
@@ -180,6 +189,11 @@ def build_beads_comments(contents):
                 comment_dic.update({comment_title: None})
             if id == 'AA2':
                 comment_content = content.text
+                # CC : https://ezoe.work/bible/jw/hf_23_11.html  𣎴：dǔn　筏树后的根株。
+                if prev_comment_title is None:
+                    continue
+                    # prev_comment_title = comment_content.split('：')[0]
+                    # comment_content = comment_content.split('：')[1].replace('\u3000', '  ')
                 comment_dic.update({prev_comment_title: comment_content})
             if id == 'BB1':
                 beat_title = content.text.replace('\u3000', '  ')
