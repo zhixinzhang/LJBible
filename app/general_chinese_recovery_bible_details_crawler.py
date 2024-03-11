@@ -49,6 +49,7 @@ def chapters_crawler(connection, current_url, abbrevation):
 
         soup = ezoe_url_request(current_url)
         full_book_name = soup.find_all('p', attrs={'id':'chap1'})[0].text
+        full_book_info = Constants.Bible_Books_Info[abbrevation]
 
         book_id = bDB.insert_book(connection, full_book_name, abbrevation, current_url)
         chapters = soup.find_all('a', attrs={'class':'page-navi'})

@@ -1,9 +1,2 @@
-2024-03-09 14:40:13,676: INFO: Crawling bible books : 创世记
-2024-03-09 14:40:13,677: INFO: chapters_crawler Crawling bible 创世记
-2024-03-09 14:40:13,853: INFO: Query books executed successfully book name :  创世记, book_id : 1
-2024-03-09 14:40:13,853: INFO: Crawling bible 创世记 chapters count is 48 
-2024-03-09 14:40:13,853: INFO: Crawling 创世记  :  1
-2024-03-09 14:40:13,853: INFO: Current chapter is : https://ezoe.work/Bible00/Show/Gen01.html ,  sleep time is 5
-2024-03-09 14:40:13,854: INFO: Crawling verses Current book : 创世记, chapter : 1 , link : https://ezoe.work/Bible00/Show/Gen01.html
-2024-03-09 14:40:14,032: INFO: Current book : 创世记, chapter : 1 , total verses number : 66,  link : https://ezoe.work/Bible00/Show/H1Kings008.html
-2024-03-09 14:40:25,818: INFO: Current book : 创世记,   1 : 52, verses : That Your eyes may be open to the supplication of Your servant and to the supplication of Your people Israel to listen to them whenever they call upon You.,  link : https://ezoe.work/Bible00/Show/H1Kings008.html
+2024-03-09 19:51:26,237: INFO: Crawling bible books : 创
+2024-03-09 19:51:26,238: INFO: Crawling bible 创

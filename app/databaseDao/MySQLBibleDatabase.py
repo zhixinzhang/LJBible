@@ -92,26 +92,27 @@ class MySQLBibleDatabase:
             self.connection.close()
             print("Disconnected from the database")
 
-    def insert_book(self, connection, full_book_name, abbrevation, url):
+    def insert_book(self, connection, book_name, book_name_abbreviation, book_name_eng, book_name_abbreviation_eng, new_or_old, book_type, version, author, url):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             cursor = connection.cursor()
             sql_script = f"""
                 INSERT INTO {self.books_table} 
-                (book_name, book_name_abbreviation, ezoe_link, created_at) 
-                VALUES ('{full_book_name}', '{abbrevation}', '{url}', '{now}');
+                (book_name, book_name_abbreviation, book_name_eng, book_name_abbreviation_eng, ezoe_link, created_at) 
+                VALUES ('{book_name}', '{book_name_abbreviation}', '{book_name_eng}', '{book_name_abbreviation_eng}', 
+                '{new_or_old}', '{book_type}', '{version}', '{url}', '{author}', '{now}');
             """
             cursor.execute(sql_script)
             connection.commit()
             book_id = cursor.lastrowid
-            print(f"insert books executed successfully book name :  {full_book_name}, book_id : {book_id}")
-            logging.info(f"insert books executed successfully book name :  {full_book_name}, book_id : {book_id}")
+            print(f"insert books executed successfully book name :  {book_name}, book_id : {book_id}")
+            logging.info(f"insert books executed successfully book name :  {book_name}, book_id : {book_id}")
             return book_id
 
         except Exception as e:
-            logging.error(f"insert book failed sql :  {sql_script}")
             print(f"Error executing SQL script: {e}")
+            logging.error(f"insert book failed sql :  {sql_script}")
 
     def insert_verse(self, connection, verse_num, verse_level, verse_gold, verse_liked, chapter_number, chapter_id):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
@@ -134,29 +135,6 @@ class MySQLBibleDatabase:
         except Exception as e:
             print(f"Error executing SQL script: {e}")
             logging.error("Insert verse failed error :  {}".format(e))
-
-    # def insert_verse_content(self, connection, original_content, content_with_mark, version, ezoe_link, verse_id, verse_num):
-    #     now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
-    #     try:
-    #         cursor = connection.cursor(buffered=True, dictionary=True)
-    #         sql_script = f"""
-    #             INSERT INTO {self.verse_contents_table} 
-    #             (original_content, content_with_mark, version, ezoe_link, verse_id, created_at) 
-    #             VALUES 
-    #             ('{original_content}', '{content_with_mark}', '{version}',
-    #             '{ezoe_link}',  {verse_id}, '{now}');
-    #         """
-    #         cursor.execute(sql_script)
-    #         connection.commit()
-    #         verse_content_id = cursor.lastrowid
-    #         print("Inserting verse_content successfully {} : {}".format(verse_num, original_content))
-    #         logging.info("Inserting verse_content successfully {} : {}".format(verse_num, original_content))
-    #         return verse_id
-        
-    #     except Exception as e:
-    #         print(f"Error executing SQL script: {e}") 
-    #         logging.error("Insert verse failed error :  {}".format(e))
 
     def insert_verse_content(self, connection, content, content_with_mark, version, current_url, verse_id):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')

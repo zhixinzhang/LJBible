@@ -1,10 +1,12 @@
 CREATE TABLE `books` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `book_name` varchar(10) UNIQUE NOT NULL,
-  `book_name_abbreviation` varchar(5) UNIQUE NOT NULL,
+  `book_name_abbreviation` varchar(10) UNIQUE NOT NULL,
+  `book_name_eng` varchar(10) UNIQUE NOT NULL,
+  `book_name_abbreviation_eng` varchar(10) UNIQUE NOT NULL,
+  `book_type` varchar(10),
   `new_or_old` varchar(5),
-  `version` varchar(10),
-  `create_time` varchar(100),
+  `version` varchar(50),
   `author` varchar(10),
   `descriptions` varchar(100),
   `ezoe_link` varchar(100),
@@ -43,8 +45,8 @@ CREATE TABLE `verses` (
 
 CREATE TABLE `verse_contents` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `original_content` varchar(1000),
-  `content_with_mark` varchar(1000),
+  `original_content` varchar(300),
+  `content_with_mark` varchar(300),
   `version` varchar(50),
   `ezoe_link` varchar(100),
   `verse_id` integer NOT NULL,
