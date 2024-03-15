@@ -31,35 +31,44 @@ def books_abbrevation_crawl(connection, current_url):
     try:
         soup = ezoe_url_request(current_url)
         books_name_abrevations = soup.find_all('a', attrs={'class':'page-navi'})
+        new_or_old = 'New'
         for line in books_name_abrevations:
             time.sleep(random.randint(2, 4))
             abbrevation = line.text
             url = line.attrs['href']
             next_url = chapters_url_to_crawl + url
-            logging.info(f"Crawling bible books : %s", abbrevation)
-            print(f"Crawling bible books : %s", abbrevation)
-            chapters_crawler(connection, next_url, abbrevation)
+
+            if abbrevation == "玛":
+                new_or_old = "Old"
+
+            full_book_info = Constants.Bible_Books_Info[abbrevation]
+            full_book_name = full_book_info[0]
+            eng_book_abbrevation = full_book_info[1]
+            eng_book_name = full_book_info[2]
+            book_type = full_book_info[3]
+
+            chapter_soup = ezoe_url_request(next_url)
+            chapters = chapter_soup.find_all('a', attrs={'class':'page-navi'})
+            chapter_count = len(chapters) - 2
+
+            book_id = bDB.insert_book(connection, abbrevation, full_book_name, eng_book_abbrevation, eng_book_name, chapter_count, 
+                                      new_or_old, book_type, Constants.Book_Version_Recovery, '', current_url)
+
+            logging.info("Crawling bible books : {} - {}  {} : {}".format(full_book_name, eng_book_name, new_or_old, book_type))
+            print("Crawling bible books : {} - {}  {} : {}".format(full_book_name, eng_book_name, new_or_old, book_type))
+
+            chapters_crawler(connection, next_url, full_book_name, abbrevation, book_id, chapters)
 
     except Exception as e:
         logging.error("Error crawling books_abbrevation_crawl {} : {}".format(current_url, e))
 
-def chapters_crawler(connection, current_url, abbrevation):
+def chapters_crawler(connection, current_url, full_book_name, abbrevation, book_id, chapters):
     try:
         logging.info('Crawling bible {}'.format(abbrevation))
 
-        soup = ezoe_url_request(current_url)
-        full_book_name = soup.find_all('p', attrs={'id':'chap1'})[0].text
-        full_book_info = Constants.Bible_Books_Info[abbrevation]
-
-        book_id = bDB.insert_book(connection, full_book_name, abbrevation, current_url)
-        chapters = soup.find_all('a', attrs={'class':'page-navi'})
-
-        logging.info("Crawling bible {} chapters count is {} ".format(full_book_name, len(chapters) - 2))
-        print("Crawling bible {} chapters count is {} ".format(full_book_name, len(chapters) - 2))
-
         for line in chapters:
             chapter = line.text
-            logging.info( 'crawling ' + full_book_name +  chapter)
+            logging.info( 'crawling ' + full_book_name + "  Chapter : " + chapter)
             if not chapter.isdigit():       #TODO 鸟瞰，纲目
                 logging.error("Crawling wrong {} : {}".format(full_book_name, chapter))
                 continue
@@ -69,7 +78,8 @@ def chapters_crawler(connection, current_url, abbrevation):
             chapter_number = int(chapter)
             chapter_id = bDB.insert_chapater(connection, chapter_number, '', current_url, book_id)
 
-            sleep_time = random.randint(4, 7)
+            sleep_time = 1
+            time.sleep(1)
 
             logging.info("Current chapter is : %s ,  sleep time is %s", full_chapter_url, sleep_time)
             print('Current chapter is : {} , sleep time is {}'.format(full_chapter_url, sleep_time))
@@ -84,8 +94,6 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
         logging.info(f"Crawling verses :  %s ,  %s  ,  %s", full_book_name, chapter_number, current_url)
         print('Current book : {}, chapter : {} , link : {}'.format(full_book_name, chapter_number, current_url))
 
-        current_url = 'https://ezoe.work/bible/jw/hf_39_4.html'
-
         soup = ezoe_url_request(current_url)
         full_jy_original_verse = soup.find_all("a", href=re.compile("/jy/jx_"))
         full_xy_original_verse = soup.find_all("a", href=re.compile("/xy/jx_"))
@@ -98,7 +106,8 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
         for i in range(total_verses_num):
             verse_num = full_original_verse[i].text
             original_verse = full_original_verse[i].nextSibling.replace('\u3000', '')
-            
+            original_verse = original_verse.strip()
+
             single_verse_soup = full_original_verse[i].parent
             if len(single_verse_soup.attrs) != 0 and 'id' in single_verse_soup.attrs and 'ddt' in single_verse_soup.attrs['id'] :
                 logging.info(" Inserting Book {} : chapter : {}  verse without comments and beads {} : {}".format(full_book_name, chapter_number, verse_num, original_verse))
@@ -110,7 +119,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
                     print("Find a verse_level {} : {}".format(verse_num, verse_level))
                     logging.warn(" Fina a verver_level {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_number, verse_num, verse_level))
                 
-                verse_id = bDB.insert_verse(connection, verse_num, verse_level, False, False,chapter_number, chapter_id)
+                verse_id = bDB.insert_verse(connection, verse_num, verse_level, False, False, chapter_number, chapter_id)
                 verse_content_id = bDB.insert_verse_content(connection, original_verse, original_verse, Constants.chinese_recovery, current_url, verse_id)
                 continue
 
@@ -141,6 +150,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
                             comment_num = 1         ##TODO https://ezoe.work/bible/jw/hf_11_9.html
                         else:
                             comment_num = k.replace('注', '')
+                        v = v.strip()
                         comment_id = bDB.insert_comment(connection, comment_num, comment_num, v, current_url, verse_id)
                         print('comment - {} : {}'.format(k, v))
 
@@ -149,6 +159,7 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
                         
                         mark = bead_num
                         original_beads = v.replace('\u3000', ' ')
+                        original_beads = original_beads.strip()
                         bead_id = bDB.insert_bead(connection, bead_num, mark, original_beads, current_url, verse_id)
                         print('bead - {} : {}'.format(k, v))
                     v_with_mark = ''
@@ -158,7 +169,6 @@ def verses_crawler(connection, current_url, chapter_number, full_book_name, chap
             if not dd_exist :
                 verse_id = bDB.insert_verse(connection, verse_num, verse_level, False, False, chapter_number, chapter_id)
                 verse_content_id = bDB.insert_verse_content(connection, original_verse, v_with_mark, Constants.chinese_recovery, current_url, verse_id)
-
 
     except Exception as e:
         logging.error("Error crawling {} : {} verses_crawler  {} : {}".format(full_book_name, chapter_number, current_url, e))

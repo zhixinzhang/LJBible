@@ -1,2 +1,12 @@
-2024-03-09 19:51:26,237: INFO: Crawling bible books : 创
-2024-03-09 19:51:26,238: INFO: Crawling bible 创
+2024-03-15 10:51:27,542: INFO: insert books executed successfully book name :  创世记, book_id : 1
+2024-03-15 10:51:27,543: INFO: Crawling bible books : 创世记 - GENESIS  New : Pentateuch
+2024-03-15 10:51:27,543: INFO: Crawling bible 创
+2024-03-15 10:51:27,543: INFO: crawling 创世记  Chapter : 鸟瞰
+2024-03-15 10:51:27,543: ERROR: Crawling wrong 创世记 : 鸟瞰
+2024-03-15 10:51:27,543: INFO: crawling 创世记  Chapter : 纲目
+2024-03-15 10:51:27,544: ERROR: Crawling wrong 创世记 : 纲目
+2024-03-15 10:51:27,544: INFO: crawling 创世记  Chapter : 001
+2024-03-15 10:51:27,545: INFO: Insert chapter successfully num : 1 :  
+2024-03-15 10:51:28,549: INFO: Current chapter is : https://ezoe.work/bible/jw/hf_1_1.html ,  sleep time is 1
+2024-03-15 10:51:28,550: INFO: Crawling verses :  创世记 ,  1  ,  https://ezoe.work/bible/jw/hf_1_1.html
+2024-03-15 10:51:28,714: INFO: Current book : 创世记, chapter : 1 , total verses number : 32,  link : https://ezoe.work/bible/jw/hf_1_1.html

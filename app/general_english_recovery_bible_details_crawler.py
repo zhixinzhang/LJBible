@@ -10,9 +10,9 @@ from bs4 import BeautifulSoup
 from databaseDao import MySQLBibleDatabase as DB
 
 visited_urls = set()
-ezoe_url = 'https://ezoe.work/bible/jw/index.html'
-books_url_to_crawl = 'https://ezoe.work/Bible00/Bible.html'
-chapters_url_to_crawl = 'https://ezoe.work/Bible00/'
+ezoe_url = 'https://text.recoveryversion.bible/RcV.htm'
+books_url_to_crawl = 'https://text.recoveryversion.bible/RcV.htm'
+chapters_url_to_crawl = 'https://text.recoveryversion.bible/'
 
 logging.basicConfig(filename='english_crawler.log', filemode='a', format='%(asctime)s: %(levelname)s: %(message)s', level=logging.INFO) 
 
@@ -27,46 +27,53 @@ def books_crawler(url):
 def books_abbrevation_crawl(connection, current_url):
     try:
         soup = ezoe_url_request(current_url)
-        all_books = soup.find_all("a", href=re.compile("Chapters/Chapters_"))
+        all_books = soup.find_all("a", href=re.compile("_1.htm"))
 
         for line in all_books:
             time.sleep(random.randint(2, 4))
-            book_name = line.text.split(" ")[1]
+            eng_book_name = line.text
             url = line.attrs['href']
             next_url = chapters_url_to_crawl + url
-            logging.info(f"Crawling bible books : %s", book_name)
-            print(f"Crawling bible books : %s", book_name)
-            chapters_crawler(connection, next_url, book_name)
+
+            chapters_crawler(connection, next_url, eng_book_name)
 
     except Exception as e:
         logging.error("Error crawling books_abbrevation_crawl {} : {}".format(current_url, e))
 
-def chapters_crawler(connection, current_url, book_name):
+def chapters_crawler(connection, current_url, eng_abbreviation_name):
     try:
-        logging.info('chapters_crawler Crawling bible {}'.format(book_name))
-        print('chapters_crawler Crawling bible {}'.format(book_name))
-
+       
         soup = ezoe_url_request(current_url)
-        all_chapters = soup.find_all("a", href=re.compile("../Show/"))
-        book = bDB.query_book_by_name(connection, book_name)
+        book = bDB.query_book_by_eng_abbreviation_name(connection, eng_abbreviation_name)
+        all_chapters_count = book['chapter_count']
 
-        logging.info("Crawling bible {} chapters count is {} ".format(book_name, len(all_chapters) - 2))
-        print("Crawling bible {} chapters count is {} ".format(book_name, len(all_chapters) - 2))
-
-        chapter_num = 0
-        for line in all_chapters:
-            chapter_num += 1
-            logging.info("Crawling {}  :  {}".format(book_name, chapter_num))
-
-            url = line.attrs['href'].replace("../", "")
-            full_chapter_url = chapters_url_to_crawl + url
-
+        cc = soup.find_all('div', attrs={'class':'chapter-links'})
+        if len(cc) == 0 :
+            logging.info("chapters_crawler Only one chapter bible {} chapters count is {} ".format(eng_abbreviation_name, all_chapters_count))
+            print("chapters_crawler Only one chapter bible {} chapters count is {} ".format(eng_abbreviation_name, all_chapters_count))            
+            chapter_num = 1
             sleep_time = random.randint(4, 8)
+            time.sleep(sleep_time)
+            verses_crawler(connection, current_url, book, chapter_num)
+            return   
 
-            logging.info("Current chapter is : %s ,  sleep time is %s", full_chapter_url, sleep_time)
-            print('Current chapter is : {} , sleep time is {}'.format(full_chapter_url, sleep_time))
+        all_chapters = soup.find_all('div', attrs={'class':'chapter-links'})[0].contents
+        logging.info("Crawling bible {} chapters count is {} ".format(eng_abbreviation_name, all_chapters_count))
+        print("Crawling bible {} chapters count is {} ".format(eng_abbreviation_name, all_chapters_count))
 
-            verses_crawler(connection, full_chapter_url, book, chapter_num)
+        for line in all_chapters:
+            if line == '\n' or line == ' ' or line.attrs == None:
+                continue
+            if 'href' in line.attrs != None:
+                url = line.attrs['href']
+                chapter_num = line.text
+                chapter_url = chapters_url_to_crawl + url
+                logging.info("Crawling {}  :  {}".format(eng_abbreviation_name, chapter_num))
+
+                sleep_time = 1
+                logging.info("Current chapter is : %s ,  sleep time is %s", chapter_url, sleep_time)
+                print('Current chapter is : {} , sleep time is {}'.format(chapter_url, sleep_time))
+                verses_crawler(connection, chapter_url, book, chapter_num)
                                 
     except Exception as e:
         logging.error("Error crawling chapters_crawler {} {}".format(current_url, e))
@@ -74,51 +81,52 @@ def chapters_crawler(connection, current_url, book_name):
 def verses_crawler(connection, current_url, book, chapter_num):
     try:
         full_book_name = book['book_name']
-        logging.info("Crawling verses Current book : {}, chapter : {} , link : {}".format(full_book_name, chapter_num, current_url))
-        print("Crawling verses Current book : {}, chapter : {} , link : {}".format(full_book_name,  chapter_num,current_url))
 
-        # current_url = "https://ezoe.work/Bible00/Show/Pas004.html"
-        current_url = "https://ezoe.work/Bible00/Show/H1Kings008.html"
-        soup = ezoe_url_request(current_url)
-        all_verses = soup.find_all('li', attrs={'style':'white-space: normal'})
+        soup = ezoe_url_request(current_url)    
+        all_verses = soup.find_all('p', attrs={'class':'verse'})
 
         total_verses_num = len(all_verses)
         logging.info('Current book : {}, chapter : {} , total verses number : {},  link : {}'.format(full_book_name, chapter_num, total_verses_num, current_url))
         print('Current book : {}, chapter : {} , total verses number : {},  link : {}'.format(full_book_name, chapter_num, total_verses_num, current_url))
 
-        for i in range(total_verses_num):
-            i = 51
-            verse = all_verses[i].text.strip()
-            if full_book_name == "诗篇" and ":0" in verse:
-                continue
-            if "因为他们是你的子民，你的产业，是你从埃及" in verse:
-                verse = "8:51\u3000For they are Your people and Your inheritance, whom You brought out from Egypt, from the midst of an iron furnace;"
-            if "\u3000" in verse :
-                verse_chapter_num = verse.split('\u3000')[0]
-                verse_num = verse_chapter_num.split(":")[1]
-                english_verse_content = verse.split('\u3000')[1].replace("\n", "")
+        verse_num = 1
+        for verse_info in all_verses:
+            print('Current verse :  {}'.format(verse_info.text))
+            logging.info('Current verse :  {}'.format(verse_info.text))
+            english_verse = ""
+            original_verse = verse_info.text.replace("/", "")
+            english_verse_contents = original_verse.split(" ")
+            temp = re.sub(r'\d+', '', english_verse_contents[1])
+            temp = temp.replace(":", " ")
+            english_verse_contents[0] = ""
+            english_verse_contents[1] = temp
+            english_verse = " ".join(str(item) for item in english_verse_contents)
+            english_verse = english_verse.strip()
 
-            else :
-                verse_chapter_num = verse.split(' ')[0]
-                verse_num = verse_chapter_num.split(":")[1]
-                english_verse_content = verse.replace(verse_chapter_num, '').replace('(', '').replace('\n', '')
-
+            print('Current verse :  {}'.format(english_verse))
+            logging.info('Current verse :  {}'.format(english_verse))
+            if english_verse == '' or english_verse == None:
+                print('Current book ?????????')
+                logging.info('Current book ?????????')
 
             logging.info('Current book : {},   {} : {}, verses : {},  link : {}'.
-                         format(full_book_name, chapter_num, verse_num, english_verse_content, current_url))
+                         format(full_book_name, chapter_num, verse_num, english_verse, current_url))
             print('Current book : {},   {} : {} , verses : {},  link : {}'.
-                  format(full_book_name, chapter_num, verse_num, english_verse_content, current_url))
+                  format(full_book_name, chapter_num, verse_num, english_verse, current_url))
             
             verse = bDB.query_verse(connection, book['id'], chapter_num, verse_num)
-            verse_content_id = bDB.insert_verse_content(connection, english_verse_content, english_verse_content, Constants.english_recovery, current_url, verse['id'])
+            verse_content_id = bDB.insert_verse_content(connection, english_verse,
+                                                         english_verse, Constants.english_recovery, current_url, verse['id'])
+            print('Current verse_content_id : {}  verse :  {}'.format(verse_content_id, english_verse))
 
+            verse_num = verse_num + 1
     except Exception as e:
         logging.error("Error crawling {} : {} verses_crawler  {} : {}".format(full_book_name, chapter_num, current_url, e))
 
 
 def ezoe_url_request(current_url):
-    if current_url in visited_urls:
-        return None
+    # if current_url in visited_urls:
+    #     return None
 
     visited_urls.add(current_url)
     try:

@@ -92,15 +92,16 @@ class MySQLBibleDatabase:
             self.connection.close()
             print("Disconnected from the database")
 
-    def insert_book(self, connection, book_name, book_name_abbreviation, book_name_eng, book_name_abbreviation_eng, new_or_old, book_type, version, author, url):
+    def insert_book(self, connection, book_name_abbreviation, book_name, 
+                    book_name_abbreviation_eng, book_name_eng, chapter_count, new_or_old, book_type, version, author, url):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             cursor = connection.cursor()
             sql_script = f"""
                 INSERT INTO {self.books_table} 
-                (book_name, book_name_abbreviation, book_name_eng, book_name_abbreviation_eng, ezoe_link, created_at) 
-                VALUES ('{book_name}', '{book_name_abbreviation}', '{book_name_eng}', '{book_name_abbreviation_eng}', 
+                (book_name, book_name_abbreviation, book_name_eng, book_name_abbreviation_eng, chapter_count, new_or_old, book_type, version, ezoe_link, author, created_at) 
+                VALUES ('{book_name}', '{book_name_abbreviation}', '{book_name_eng}', '{book_name_abbreviation_eng}', {chapter_count},
                 '{new_or_old}', '{book_type}', '{version}', '{url}', '{author}', '{now}');
             """
             cursor.execute(sql_script)
@@ -253,6 +254,25 @@ class MySQLBibleDatabase:
         except Exception as e:
             logging.error(f"insert book failed sql :  {sql_script}")
             print(f"Error executing SQL script: {e}")
+
+    def query_book_by_eng_abbreviation_name(self, connection, name):
+        now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        try:
+            cursor = connection.cursor(buffered=True, dictionary=True)
+            sql_script = f"SELECT * FROM {self.books_table}  WHERE book_name_abbreviation_eng = '{name}';"
+                
+        
+            cursor.execute(sql_script)
+            result = cursor.fetchone()
+
+            print(f"Query books executed successfully book name :  {name}, book_id : {result['id']}")
+            logging.info(f"Query books executed successfully book name :  {name}, book_id : {result['id']}")
+            return result
+
+        except Exception as e:
+            print(f"Error executing SQL script: {e}")
+            logging.error(f"insert book failed sql :  {sql_script}")
 
     def query_verse(self, connection, book_id, chapter_num, verse_num):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')

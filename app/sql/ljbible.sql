@@ -1,14 +1,15 @@
 CREATE TABLE `books` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `book_name` varchar(10) UNIQUE NOT NULL,
-  `book_name_abbreviation` varchar(10) UNIQUE NOT NULL,
-  `book_name_eng` varchar(10) UNIQUE NOT NULL,
-  `book_name_abbreviation_eng` varchar(10) UNIQUE NOT NULL,
-  `book_type` varchar(10),
+  `book_name` varchar(30) UNIQUE NOT NULL,
+  `book_name_abbreviation` varchar(30) UNIQUE NOT NULL,
+  `book_name_eng` varchar(30) UNIQUE NOT NULL,
+  `book_name_abbreviation_eng` varchar(30) UNIQUE NOT NULL,
+  `book_type` varchar(30),
+  `chapter_count` integer,
   `new_or_old` varchar(5),
   `version` varchar(50),
-  `author` varchar(10),
-  `descriptions` varchar(100),
+  `author` varchar(30),
+  `descriptions` varchar(500),
   `ezoe_link` varchar(100),
   `created_at` timestamp
 );
