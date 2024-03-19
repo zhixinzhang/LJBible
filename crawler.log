@@ -1,12 +1,31 @@
-2024-03-15 10:51:27,542: INFO: insert books executed successfully book name :  创世记, book_id : 1
-2024-03-15 10:51:27,543: INFO: Crawling bible books : 创世记 - GENESIS  New : Pentateuch
-2024-03-15 10:51:27,543: INFO: Crawling bible 创
-2024-03-15 10:51:27,543: INFO: crawling 创世记  Chapter : 鸟瞰
-2024-03-15 10:51:27,543: ERROR: Crawling wrong 创世记 : 鸟瞰
-2024-03-15 10:51:27,543: INFO: crawling 创世记  Chapter : 纲目
-2024-03-15 10:51:27,544: ERROR: Crawling wrong 创世记 : 纲目
-2024-03-15 10:51:27,544: INFO: crawling 创世记  Chapter : 001
-2024-03-15 10:51:27,545: INFO: Insert chapter successfully num : 1 :  
-2024-03-15 10:51:28,549: INFO: Current chapter is : https://ezoe.work/bible/jw/hf_1_1.html ,  sleep time is 1
-2024-03-15 10:51:28,550: INFO: Crawling verses :  创世记 ,  1  ,  https://ezoe.work/bible/jw/hf_1_1.html
-2024-03-15 10:51:28,714: INFO: Current book : 创世记, chapter : 1 , total verses number : 32,  link : https://ezoe.work/bible/jw/hf_1_1.html
+2024-03-19 01:46:37,179: INFO: DB Inserting book successfully 1 : 创世记  GENESIS 50 
+2024-03-19 01:46:37,182: INFO: DB Inserting book content successfully 1 : 创世记  Recovery
+2024-03-19 01:46:37,182: INFO: Crawling bible books : 创世记 - GENESIS  New : Pentateuch
+2024-03-19 01:46:37,182: INFO: Crawling bible 创
+2024-03-19 01:46:37,182: INFO: crawling 创世记  Chapter : 鸟瞰
+2024-03-19 01:46:37,182: ERROR: Crawling wrong 创世记 : 鸟瞰
+2024-03-19 01:46:37,182: INFO: crawling 创世记  Chapter : 纲目
+2024-03-19 01:46:37,182: ERROR: Crawling wrong 创世记 : 纲目
+2024-03-19 01:46:37,182: INFO: crawling 创世记  Chapter : 001
+2024-03-19 01:46:37,184: INFO: DB Insert chapter successfully num : 1 :  
+2024-03-19 01:46:38,187: INFO: Current chapter is : https://ezoe.work/bible/jw/hf_1_1.html ,  sleep time is 1
+2024-03-19 01:46:38,188: INFO: Crawling verses :  创世记 ,  1  ,  https://ezoe.work/bible/jw/hf_1_1.html
+2024-03-19 01:46:38,385: INFO: Current book : 创世记, chapter : 1 , total verses number : 32,  link : https://ezoe.work/bible/jw/hf_1_1.html
+2024-03-19 01:46:44,777: INFO:  Inserting Book 创世记 : chapter : 1  verse 1 : 起初神创造诸天与地，
+2024-03-19 01:46:44,781: INFO: DB Inserting verse successfully 1 : 1
+2024-03-19 01:46:44,784: INFO: DB Insert verse contents successfully verse_contents_id 1 : 起初神创造诸天与地，
+2024-03-19 01:46:44,785: INFO: DB Inserting comment executed successfully comment id is 1 : 圣经由旧约和新约二约组成，是神写给人完整的神圣启示。整本圣经主要的启示，乃是独一的三一神唯一的神圣经纶(弗一10，三9，提前一4下)。这神圣经纶的中心与普及，乃是包罗万有且追测不尽之丰富的基督，作三一神的具体化身和彰显(西二9，一15～19，约一18)。神圣经纶的目标，乃是召会作基督的身体，基督的丰满和彰显(弗一22下～23，三8～11)，终极完成于新耶路撒冷，作经过过程并终极完成之三一神，与祂所救赎、重生、变化并荣化之三部分人的联结、调和与合并。神圣经纶的完成有许多步骤，在圣经中渐进的启示出来，开始于创一～二神的创造，完成于启二一～二二的新耶路撒冷。在旧约里，神经纶的内容主要是以预表、表号和影儿启示出来；在新约里，一切的预表、表号和影儿都应验并实现了。因此，旧约是神永远经纶的象征描绘，新约是它实际的应验。
+　“创世记”是七十士希腊文译本所采用本卷的书名，其拉丁文意为，生产，起源。创世记为圣经第一卷书，生出圣言中神圣的真理，也是圣言中神圣真理的起源。因此，神圣真理的种子乃是撒在这卷书里。这些种子在以后各卷书中，特别在新约里，长大并发展，至终收成于末一卷书启示录。
+　创世记是整本圣经完整启示的缩影，开始于按着神的形像所造的人(一26)，结束于那称为以色列的变化过的人(三二28，四八2)，这人不仅外面有神的形像，更有神作到他里面，使他成为神的彰显。变化过的以色列乃是新耶路撒冷的种子，缩影。
+　表面上，创一～二仅仅是创造的记载；事实上，这两章的记载中，几乎每一项都启示基督作神子民的生命(约一1，4，十一25，十四6)，为着产生并建造召会。三～五十章陈明八大人物的传记。这八大人物分为两组，各有四人，代表人类的两个族类：亚当、亚伯、以诺和挪亚，代表受造的族类；亚伯拉罕、以撒、雅各和约瑟，代表蒙召的族类。其中所记载的，主要不是这些人的工作，乃是他们的生命、生活并他们在神面前的道路。在创世记里，神用创造的记载和八个人物的传记，启示出完成祂定旨的生命。
+　这里的“起初”，指时间的开始(参约一1)。时间开始于宇宙的创造，继续直到白色大宝座前末了的审判(启二十11～15)。时间乃是为着完成神在已过永远里，为着将来的永远，所立的永远定旨(弗三11)。
+2024-03-19 01:46:44,787: INFO: DB Inserting comment executed successfully comment id is 2 : 希伯来文， Elohim， 伊罗欣，意，大能者。这里的希伯来名字是复数，而动词“创造”却是单数。不仅如此，26节用复数代名词“我们”和“我们的”说到神，而27节原文却用代名词“祂”(中文未译)和“祂的”(中文译为“自己的”)。这乃是神圣三一的种子。神是一(赛四五5，林前八4，提前二5)，但祂也是三—父、子、灵(太二八19)。祂是三一神。创造的那一位乃是三一神。见林后十三14注1三段。
+　创世记分为三段，每段开始于一个名字。第一段(一1～二25)开始于“神”这名字，论到神的创造；第二段(三1～十一32)原文开始于“蛇”，论到蛇对人类的败坏；第三段(十二1～五十26)开始于“耶和华”这名字，论到耶和华对堕落之人的呼召。
+2024-03-19 01:46:44,788: INFO: DB Inserting comment executed successfully comment id is 3 : 这里的“创造”是指从无生出有来，与二4的“造”，和二7的“塑造”不同，后二者是指把已经存在的东西拿来，用以产生其他的东西。
+　神创造的动机是要完成祂的心愿，满足祂的喜悦(弗一5，9)。神创造的定旨是要荣耀祂的儿子(西一15～19)，并且特别要在人身上(提前三16)，借着祂的儿子基督彰显神自己(诗十九1～2，罗一20与注1，注2)；基督乃是神的具体化身以及神的形像，彰显(西二9，一15)。神创造的根据，乃是神的旨意和计划(弗一10与注2，启四11与注2)。神创造的凭借，乃是神的儿子(西一15～16，来一2下)和神的话(来十一3，约一1～3)，这二者都是基督(约一1，18，启十九13)。
+2024-03-19 01:46:44,789: INFO: DB Inserting comment executed successfully comment id is 4 : 在神创造的过程中，诸天和其中的天使首先被造，地(可能还有其上一些活类)其次被造(伯三八4～7与7注1)。
+2024-03-19 01:46:44,791: INFO: DB Inserting bead executed successfully comment_id : 1 bead_id : 约1:1 太初有话，话与神同在，话就是神。约1:2 这话太初与神同在。
+2024-03-19 01:47:19,991: INFO: DB Inserting bead conetnet executed successfully comment_id : 1 bead_id : 太初有话，话与神同在，话就是神。
+2024-03-19 01:47:23,464: INFO: DB Inserting bead conetnet executed successfully comment_id : 2 bead_id : 这话太初与神同在。
+2024-03-19 01:47:35,704: INFO: DB Inserting bead executed successfully comment_id : 2 bead_id : 亚12:1 耶和华论以色列之话语的默示。铺张诸天、建立地基、造人里面之灵的耶和华说，诗33:6 诸天借耶和华的话而造，万象借祂口中的气而成。赛42:5 创造并铺张诸天，将地和地所出的一并铺开，赐气息给地上的万民，又赐灵给行在其上之人的神耶和华，祂如此说，赛45:18 创造诸天的耶和华，就是那塑造并造作地的神；祂使地坚立；祂创造地，并非使其荒废，祂塑造地，是要给人居住；祂如此说，我是耶和华，再没有别神；耶10:12 耶和华用能力造作大地，用智慧建立世界，用聪明铺张诸天。耶51:15 耶和华用能力造作大地，用智慧建立世界，用聪明铺张诸天。约1:3 万物是借着祂成的；凡已成的，没有一样不是借着祂成的。
+2024-03-19 01:47:39,145: INFO: DB Inserting bead conetnet executed successfully comment_id : 3 bead_id : 耶和华论以色列之话语的默示。铺张诸天、建立地基、造人里面之灵的耶和华说，

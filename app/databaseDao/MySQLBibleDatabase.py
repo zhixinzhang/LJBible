@@ -4,11 +4,13 @@ import logging
 
 class MySQLBibleDatabase:
     books_table = 'ljbible.books'
+    book_contents_table = 'ljbible.book_contents'
     chapters_table = 'ljbible.chapters'
     verses_table = 'ljbible.verses'
     verse_contents_table = 'ljbible.verse_contents'
     comments_table = 'ljbible.comments'
     beads_table = 'ljbible.beads'
+    bead_contents_table = 'ljbible.bead_contents'
 
     logging.basicConfig(filename='crawler.log', filemode='w', format='%(asctime)s: %(levelname)s: %(message)s', level=logging.INFO) 
 
@@ -92,52 +94,97 @@ class MySQLBibleDatabase:
             self.connection.close()
             print("Disconnected from the database")
 
-    def insert_book(self, connection, book_name_abbreviation, book_name, 
-                    book_name_abbreviation_eng, book_name_eng, chapter_count, new_or_old, book_type, version, author, url):
+    def insert_book(self, connection, abbrevation_cn, book_name_cn, 
+                    abbrevation_eng, book_name_eng, chapter_num, new_or_old, book_type, author):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             cursor = connection.cursor()
             sql_script = f"""
                 INSERT INTO {self.books_table} 
-                (book_name, book_name_abbreviation, book_name_eng, book_name_abbreviation_eng, chapter_count, new_or_old, book_type, version, ezoe_link, author, created_at) 
-                VALUES ('{book_name}', '{book_name_abbreviation}', '{book_name_eng}', '{book_name_abbreviation_eng}', {chapter_count},
-                '{new_or_old}', '{book_type}', '{version}', '{url}', '{author}', '{now}');
+                (book_name_cn, abbrevation_cn, book_name_eng, abbrevation_eng, chapter_num, new_or_old, 
+                book_type, ac_bc_time, location, author, created_at) 
+                VALUES ('{book_name_cn}', '{abbrevation_cn}', '{book_name_eng}', '{abbrevation_eng}', {chapter_num},
+                '{new_or_old}', '{book_type}', '', '', '{author}', '{now}');
             """
             cursor.execute(sql_script)
             connection.commit()
             book_id = cursor.lastrowid
-            print(f"insert books executed successfully book name :  {book_name}, book_id : {book_id}")
-            logging.info(f"insert books executed successfully book name :  {book_name}, book_id : {book_id}")
+            print("DB Inserting book successfully {} : {}  {} {}".format(book_id, book_name_cn, book_name_eng, chapter_num))
+            logging.info("DB Inserting book successfully {} : {}  {} {} ".format(book_id, book_name_cn, book_name_eng, chapter_num))
             return book_id
 
         except Exception as e:
             print(f"Error executing SQL script: {e}")
             logging.error(f"insert book failed sql :  {sql_script}")
 
-    def insert_verse(self, connection, verse_num, verse_level, verse_gold, verse_liked, chapter_number, chapter_id):
+    def insert_book_content(self, connection, book_name_cn, version, descriptions, crawler_link, book_id):
+        now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        try:
+            cursor = connection.cursor()
+            sql_script = f"""
+                INSERT INTO {self.book_contents_table} 
+                (book_name_cn, version, descriptions, crawler_link, book_id, created_at) 
+                VALUES ('{book_name_cn}', '{version}', '{descriptions}', '{crawler_link}', {book_id}, '{now}');
+            """
+            cursor.execute(sql_script)
+            connection.commit()
+            book_content_id = cursor.lastrowid
+
+            print("DB Inserting book content successfully {} : {}  {}".format(book_content_id, book_name_cn, version))
+            logging.info("DB Inserting book content successfully {} : {}  {}".format(book_content_id, book_name_cn, version))
+            return book_content_id
+
+        except Exception as e:
+            print(f"Error executing SQL script: {e}")
+            logging.error(f"insert book failed sql :  {sql_script}")
+
+    def insert_chapater(self, connection, chapter_num, body, crawler_link, book_content_id):
+        now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        try:
+            cursor = connection.cursor()
+            sql_script = f"""
+                INSERT INTO {self.chapters_table} 
+                (chapter_num, body, crawler_link, book_content_id, created_at) 
+                VALUES 
+                ({chapter_num}, '{body}', '{crawler_link}', {book_content_id}, '{now}');
+            """
+            cursor.execute(sql_script)
+            connection.commit()
+            chapter_id = cursor.lastrowid
+            print("DB Insert chapter successfully num : {} : {} ".format(chapter_num, body))
+            logging.info("DB Insert chapter successfully num : {} : {} ".format(chapter_num, body))
+            return chapter_id
+
+        except Exception as e:
+            logging.error("insert chapter failed error :  {}".format(e))
+            print(f"Error executing SQL script: {e}")  
+
+    def insert_verse(self, connection, verse_num, verse_level, verse_gold, verse_liked, chapter_num, chapter_id):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             cursor = connection.cursor(buffered=True, dictionary=True)
             sql_script = f"""
                 INSERT INTO {self.verses_table} 
-                (verse_num, verse_level, verse_gold, verse_liked, chapter_number, chapter_id, created_at) 
+                (verse_num, verse_level, verse_gold, verse_liked, chapter_num, chapter_id, created_at) 
                 VALUES 
-                ({verse_num}, '{verse_level}', {verse_gold}, {verse_liked}, {chapter_number}, {chapter_id}, '{now}');
+                ({verse_num}, '{verse_level}', {verse_gold}, {verse_liked}, {chapter_num}, {chapter_id}, '{now}');
             """
             cursor.execute(sql_script)
             connection.commit()
             verse_id = cursor.lastrowid
-            print("Inserting verse successfully {} : {}".format(chapter_id, verse_num))
-            logging.info("Inserting verse successfully {} : {}".format(chapter_id, verse_num))
+            print("DB Inserting verse successfully {} : {}".format(chapter_id, verse_num))
+            logging.info("DB Inserting verse successfully {} : {}".format(chapter_id, verse_num))
             return verse_id
         
         except Exception as e:
             print(f"Error executing SQL script: {e}")
             logging.error("Insert verse failed error :  {}".format(e))
 
-    def insert_verse_content(self, connection, content, content_with_mark, version, current_url, verse_id):
+    def insert_verse_content(self, connection, original_content, content_with_mark, version, crawler_link, verse_id):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
@@ -145,10 +192,10 @@ class MySQLBibleDatabase:
             sql_script_one = "SET FOREIGN_KEY_CHECKS = 0;"
             sql_script_two = f"""
                 INSERT INTO {self.verse_contents_table} 
-                (original_content, content_with_mark, version, ezoe_link, verse_id, created_at) 
+                (original_content, content_with_mark, version, crawler_link, verse_id, created_at) 
                 VALUES 
-                ("{content}", "{content_with_mark}", '{version}',
-                '{current_url}',  {verse_id}, '{now}');
+                ("{original_content}", "{content_with_mark}", '{version}',
+                '{crawler_link}',  {verse_id}, '{now}');
             """
             sql_script_three = "SET FOREIGN_KEY_CHECKS = 1;"
 
@@ -161,99 +208,102 @@ class MySQLBibleDatabase:
             cursor.execute(sql_script_three)
             connection.commit()
             
-            print(f"Insert verse contents successfully verse_contents_id : {content_id} : {content}")
-            logging.info(f"Insert verse contents successfully verse_contents_id : {content_id} : {content}")
+            print("DB Insert verse contents successfully verse_contents_id {} : {}".format(content_id, original_content))
+            logging.info("DB Insert verse contents successfully verse_contents_id {} : {}".format(content_id, original_content))
             return content_id
 
         except Exception as e:
             print(f"Error executing SQL script insert english_verse : {e}") 
-            logging.error(f"Error executing SQL script insert english_verse :  {e}")
+            logging.error(f"Error executing SQL script insert english_verse :  {e}")  
 
-    def insert_chapater(self, connection, chapter_num, body, ezoe_link, book_id):
-        now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
-
-        try:
-            cursor = connection.cursor()
-            sql_script = f"""
-                INSERT INTO {self.chapters_table} 
-                (chapter_num, body, ezoe_link, book_id, created_at) 
-                VALUES 
-                ({chapter_num}, '{body}', '{ezoe_link}', {book_id}, '{now}');
-            """
-            cursor.execute(sql_script)
-            connection.commit()
-            chapter_id = cursor.lastrowid
-            print("Insert chapter successfully num : {} : {} ".format(chapter_num, body))
-            logging.info("Insert chapter successfully num : {} : {} ".format(chapter_num, body))
-            return chapter_id
-
-        except Exception as e:
-            logging.error("insert chapter failed error :  {}".format(e))
-            print(f"Error executing SQL script: {e}")    
-
-    def insert_comment(self, connection, comment_num, mark, original_content, ezoe_link, verse_id):
+    def insert_comment(self, connection, comment_num, mark, original_content, crawler_link, verse_content_id):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             cursor = connection.cursor()
             sql_script = f"""
                 INSERT INTO {self.comments_table} 
-                (comment_num, mark, content, verse_id, ezoe_link, created_at) 
+                (comment_num, mark, content, verse_content_id, crawler_link, created_at) 
                 VALUES 
-                ({comment_num}, {mark}, '{original_content}', {verse_id}, '{ezoe_link}', '{now}');
+                ({comment_num}, {mark}, '{original_content}', {verse_content_id}, '{crawler_link}', '{now}');
             """
             cursor.execute(sql_script)
             connection.commit()
             comment_id = cursor.lastrowid
-            print("Inserting comment executed successfully comment id is {} : {}".format(comment_id, original_content))
-            logging.info("Inserting comment executed successfully comment id is {} : {}".format(comment_id, original_content))
+            print("DB Inserting comment executed successfully comment id is {} : {}".format(comment_id, original_content))
+            logging.info("DB Inserting comment executed successfully comment id is {} : {}".format(comment_id, original_content))
             return comment_id
         
         except Exception as e:
             logging.error("Inserting comment failed error :  {}".format(e))
             print(f"Error executing insert_comments SQL script: {e}") 
 
-    def insert_bead(self, connection, bead_num, mark, original_content, ezoe_link, verse_id):
+    def insert_bead(self, connection, bead_num, bead_range, mark, original_content, crawler_link, verse_content_id):
+        now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        try:
+            cursor = connection.cursor(buffered=True, dictionary=True)
+
+            sql_script = f"""
+                INSERT INTO {self.beads_table} 
+                (bead_num, bead_range, mark, content, verse_content_id, crawler_link, created_at) 
+                VALUES 
+                ('{bead_num}', '{bead_range}', '{mark}', '{original_content}', {verse_content_id}, '{crawler_link}',  '{now}');
+            """
+            cursor.execute(sql_script)
+            connection.commit()
+            bead_id = cursor.lastrowid
+            print("DB Inserting bead executed successfully comment_id : {} bead_id : {}".format(bead_id, original_content ))
+            logging.info("DB Inserting bead executed successfully comment_id : {} bead_id : {}".format(bead_id, original_content ))
+            return bead_id
+        
+        except Exception as e:
+            print(f"Error executing insert_comments SQL script: {e}")
+            logging.error("Inserting bead failed error : {} ".format(e))
+
+    def insert_bead_contents(self, connection, used_cn_abbrevation, used_eng_abbrevation, located_cn_abbrevation, located_eng_abbrevation, 
+                             used_chapter_num, used_verse_num, located_chapter_num, located_verse_num, content, original_content, bead_id, 
+                             verse_content_id, crawler_link):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             cursor = connection.cursor()
             sql_script = f"""
-                INSERT INTO {self.beads_table} 
-                (bead_num, mark, content, verse_id, ezoe_link, created_at) 
+                INSERT INTO {self.bead_contents_table} 
+                (used_cn_abbrevation, used_eng_abbrevation, located_cn_abbrevation, located_eng_abbrevation, used_chapter_num,
+                  used_verse_num, located_chapter_num, located_verse_num, content, original_content, bead_id, verse_content_id, crawler_link, created_at) 
                 VALUES 
-                ('{bead_num}', '{mark}', '{original_content}', {verse_id}, '{ezoe_link}',  '{now}');
+                ('{used_cn_abbrevation}', '{used_eng_abbrevation}', '{located_cn_abbrevation}', '{located_eng_abbrevation}',
+                  {used_chapter_num}, {used_verse_num}, {located_chapter_num}, {located_verse_num}, '{content}', '{original_content}',
+                    {bead_id}, {verse_content_id}, '{crawler_link}', '{now}');
             """
             cursor.execute(sql_script)
             connection.commit()
-            comment_id = cursor.lastrowid
-            print("Inserting bead executed successfully comment_id : {} bead_id : {}".format(comment_id,original_content ))
-            logging.info("Inserting bead executed successfully comment_id : {} bead_id : {}".format(comment_id,original_content ))
-            return comment_id
+            bead_content_id = cursor.lastrowid
+            print("DB Inserting bead conetnet executed successfully comment_id : {} bead_id : {}".format(bead_content_id, content ))
+            logging.info("DB Inserting bead conetnet executed successfully comment_id : {} bead_id : {}".format(bead_content_id, content ))
+            return bead_content_id
         
         except Exception as e:
+            print(f"Error executing insert_comments SQL script: {e}")        
             logging.error("Inserting bead failed error : {} ".format(e))
-            print(f"Error executing insert_comments SQL script: {e}")      
 
     def query_book_by_name(self, connection, name):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
-            # cursor = connection.cursor()
             cursor = connection.cursor(buffered=True, dictionary=True)
             sql_script = f"SELECT * FROM {self.books_table}  WHERE book_name = '{name}';"
                 
-        
             cursor.execute(sql_script)
             result = cursor.fetchone()
-
-            print(f"Query books executed successfully book name :  {name}, book_id : {result['id']}")
-            logging.info(f"Query books executed successfully book name :  {name}, book_id : {result['id']}")
+            print("Query books executed successfully book name :  {}, book_id : {}".format(name, result['id']))
+            logging.info("Query books executed successfully book name :  {}, book_id : {}".format(name, result['id']))
             return result
 
         except Exception as e:
-            logging.error(f"insert book failed sql :  {sql_script}")
-            print(f"Error executing SQL script: {e}")
+            logging.error("insert book failed sql :  {}, {}".format(sql_script, e))
+            print("insert book failed sql :  {}, {}".format(sql_script, e))
 
     def query_book_by_eng_abbreviation_name(self, connection, name):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
