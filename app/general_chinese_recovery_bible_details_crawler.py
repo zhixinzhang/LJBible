@@ -47,6 +47,8 @@ def books_abbrevation_crawl(connection, current_url):
             book_name_eng = full_book_info[2]
             book_type = full_book_info[3]
 
+            # next_url = "https://ezoe.work/bible/jw/hf_1_3.html"
+
             chapter_soup = ezoe_url_request(next_url)
             chapters = chapter_soup.find_all('a', attrs={'class':'page-navi'})
             chapter_num = len(chapters) - 2
@@ -101,6 +103,8 @@ def verses_crawler(connection, current_url, chapter_num, full_book_name, abbreva
         logging.info(f"Crawling verses :  %s ,  %s  ,  %s", full_book_name, chapter_num, current_url)
         print('Current book : {}, chapter : {} , link : {}'.format(full_book_name, chapter_num, current_url))
 
+        # current_url = "https://ezoe.work/bible/jw/hf_11_7.html"
+
         soup = ezoe_url_request(current_url)
         full_jy_original_verse = soup.find_all("a", href=re.compile("/jy/jx_"))
         full_xy_original_verse = soup.find_all("a", href=re.compile("/xy/jx_"))
@@ -110,6 +114,7 @@ def verses_crawler(connection, current_url, chapter_num, full_book_name, abbreva
         logging.info('Current book : {}, chapter : {} , total verses number : {},  link : {}'.format(full_book_name, chapter_num, total_verses_num, current_url))
         print('Current book : {}, chapter : {} , total verses number : {},  link : {}'.format(full_book_name, chapter_num, total_verses_num, current_url))
 
+        # for i in range(39, total_verses_num):
         for i in range(total_verses_num):
             verse_num = full_original_verse[i].text
             original_verse = full_original_verse[i].nextSibling.replace('\u3000', '')
@@ -138,6 +143,12 @@ def verses_crawler(connection, current_url, chapter_num, full_book_name, abbreva
                 if name == 'dd':
                     dd_exist = True
                     comments, beads, v_with_mark = build_beads_comments(sub.contents)
+                    # full_book_name = "列王纪上"
+                    # chapter_num = 7
+                    # verse_num = "40上"
+
+                    if full_book_name == "列王纪上" and chapter_num == 7 and verse_num == "40上" :
+                        beads = {}
                     print(" Inserting Book {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_num, verse_num, original_verse))
                     logging.info(" Inserting Book {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_num, verse_num, original_verse))
                     verse_level = ''
@@ -152,6 +163,8 @@ def verses_crawler(connection, current_url, chapter_num, full_book_name, abbreva
                     verse_content_id = bDB.insert_verse_content(connection, original_verse, v_with_mark, Constants.chinese_recovery, current_url, verse_id)
 
                     for k, v in comments.items():
+                        logging.info(" Find comments. book : {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_num, verse_num, v))
+
                         if "词典" in k:
                             comment_num = 1         ##TODO https://ezoe.work/bible/jw/hf_11_9.html
                         else:
@@ -164,6 +177,9 @@ def verses_crawler(connection, current_url, chapter_num, full_book_name, abbreva
                         if len(v) == 0:
                             print("Current beads is empty : {}".format(original_verse))
                             continue
+                        logging.info(" Find beads. book : {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_num, verse_num, v))
+                        print(" Find beads. book : {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_num, verse_num, v))
+
                         bead_num = k.replace('串', '').split(' ')[0]
                         bead_range = k.replace('串', '').split('  ')[1]
                         
@@ -171,14 +187,14 @@ def verses_crawler(connection, current_url, chapter_num, full_book_name, abbreva
                         original_beads = v[0].replace('\u3000', ' ')
                         bead_id = bDB.insert_bead(connection, bead_num, bead_range, mark, original_beads, current_url, verse_content_id)
 
-                        cc = len(v)
                         for i in range(1, len(v)):
                             cur_bead = v[i]
                             cur_bead_content = cur_bead.split("\u3000")
                             bead_verse_position = cur_bead_content[0]
-                            bead_verse_info = cur_bead_content[1]
+                            bead_verse_info = "" if len(cur_bead_content) <= 1 else cur_bead_content[1]
+
                             all_verse_struc = re.split(r'(\d+)', bead_verse_position)
-                            located_cn_abbrevation = all_verse_struc[0]
+                            located_cn_abbrevation = all_verse_struc[0].strip()
 
                             loacted_book_info = Constants.Bible_Books_Info[located_cn_abbrevation]
                             located_eng_abbrevation = loacted_book_info[1]
@@ -187,6 +203,8 @@ def verses_crawler(connection, current_url, chapter_num, full_book_name, abbreva
                             located_verse_num = all_verse_struc[3]
                             content = bead_verse_info
                             original_content = cur_bead.replace("\u3000", "   ")
+                            logging.info(" Trying to insert bead. book : {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_num, verse_num, content))
+                            print(" Trying to insert bead. book : {} : chapter : {}  verse {} : {}".format(full_book_name, chapter_num, verse_num, content))
 
                             bDB.insert_bead_contents(connection, 
                                                      abbrevation_cn, abbrevation_eng, located_cn_abbrevation, located_eng_abbrevation, 
@@ -247,6 +265,12 @@ def build_beads_comments(contents):
                 for c in contents:
                     c_type = type(c)
                     if c_type != bs4.element.Tag:
+                        if "\u3000" not in c:
+                            last_bead = beat_content_list[-1]
+                            new_bead = last_bead + "  " + c.strip()
+                            beat_content_list[-1] = new_bead
+                            print(beat_content_list[-1])
+                            continue
                         beat_content_list.append(c.strip())
                         
                 bead_dic.update({prev_beat_title: beat_content_list})

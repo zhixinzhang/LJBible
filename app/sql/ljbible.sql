@@ -55,8 +55,8 @@ CREATE TABLE `verses` (
 
 CREATE TABLE `verse_contents` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
-  `original_content` varchar(300),
-  `content_with_mark` varchar(300),
+  `original_content` varchar(1000),
+  `content_with_mark` varchar(1000),
   `version` varchar(50),
   `crawler_link` varchar(100),
   `verse_id` integer NOT NULL,
@@ -76,7 +76,7 @@ CREATE TABLE `comments` (
 CREATE TABLE `beads` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `bead_num` varchar(10),
-  `bead_range` varchar(50),
+  `bead_range` varchar(200),
   `mark` varchar(10),
   `content` varchar(10000) NOT NULL,
   `verse_content_id` integer,

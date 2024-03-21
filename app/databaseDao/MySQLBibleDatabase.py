@@ -154,8 +154,8 @@ class MySQLBibleDatabase:
             cursor.execute(sql_script)
             connection.commit()
             chapter_id = cursor.lastrowid
-            print("DB Insert chapter successfully num : {} : {} ".format(chapter_num, body))
-            logging.info("DB Insert chapter successfully num : {} : {} ".format(chapter_num, body))
+            print("DB Insert chapter successfully num : {} : {} ".format(chapter_num, book_content_id))
+            logging.info("DB Insert chapter successfully num : {} : {} ".format(chapter_num, book_content_id))
             return chapter_id
 
         except Exception as e:
@@ -240,6 +240,7 @@ class MySQLBibleDatabase:
 
     def insert_bead(self, connection, bead_num, bead_range, mark, original_content, crawler_link, verse_content_id):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+        print("bead_range: {} : original_content".format(bead_range, original_content))
 
         try:
             cursor = connection.cursor(buffered=True, dictionary=True)
@@ -310,7 +311,7 @@ class MySQLBibleDatabase:
 
         try:
             cursor = connection.cursor(buffered=True, dictionary=True)
-            sql_script = f"SELECT * FROM {self.books_table}  WHERE book_name_abbreviation_eng = '{name}';"
+            sql_script = f"SELECT * FROM {self.books_table}  WHERE abbrevation_eng = '{name}';"
                 
         
             cursor.execute(sql_script)
@@ -324,27 +325,45 @@ class MySQLBibleDatabase:
             print(f"Error executing SQL script: {e}")
             logging.error(f"insert book failed sql :  {sql_script}")
 
-    def query_verse(self, connection, book_id, chapter_num, verse_num):
+    def query_book_content_by_book_name_cn(self, connection, name):
         now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
 
         try:
             cursor = connection.cursor(buffered=True, dictionary=True)
+            sql_script = f"SELECT * FROM {self.book_contents_table}  WHERE book_name_cn = '{name}';"
+                
+        
+            cursor.execute(sql_script)
+            result = cursor.fetchone()
 
+            print(f"Query book_content executed successfully book name :  {name}, book_id : {result['id']}")
+            logging.info(f"Query book_content executed successfully book name :  {name}, book_id : {result['id']}")
+            return result
+
+        except Exception as e:
+            print(f"Error executing SQL script: {e}")
+            logging.error(f"query book_content failed sql :  {sql_script}")
+
+    def query_verse(self, connection, book_name_cn, book_content_id, chapter_num, verse_num):
+        now = datetime.datetime.utcnow().strftime('%Y-%m-%d %H:%M:%S')
+
+        try:
+            cursor = connection.cursor(buffered=True, dictionary=True)
             sql_script = f"""
                 SELECT * FROM {self.verses_table}  as v 
                 left join {self.chapters_table} as c 
                 on v.chapter_id = c.id 
-                left join {self.books_table} as b
-                on c.book_id = b.id
-                where v.verse_num = {verse_num} and b.id = {book_id} and c.chapter_num = {chapter_num};
+                left join {self.book_contents_table} as bc
+                on c.book_content_id = bc.id
+                where v.verse_num = {verse_num} and bc.id = {book_content_id} and c.chapter_num = {chapter_num};
             """
         
             cursor.execute(sql_script)
             result = cursor.fetchone()
             cursor.close()
 
-            print(f"Query book executed successfully book name :  {result['book_name']}, book_id : {result['id']}")
-            logging.info(f"Query book executed successfully book name :  {result['book_name']}, book_id : {result['id']}")
+            print("Query verse executed successfully book name :  {}, chapter_num : {}, verse_num : {}".format(book_name_cn, chapter_num, verse_num))
+            logging.info("Query verse executed successfully book name :  {}, chapter_num : {}, verse_num : {}".format(book_name_cn, chapter_num, verse_num))
             return result
 
         except Exception as e:
